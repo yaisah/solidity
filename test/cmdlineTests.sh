@@ -30,7 +30,7 @@ set -e
 
 ## GLOBAL VARIABLES
 
-REPO_ROOT=$(cd $(dirname "$0")/.. && pwd)
+REPO_ROOT=$(cd "$(dirname "$0")/.." && pwd)
 SOLIDITY_BUILD_DIR=${SOLIDITY_BUILD_DIR:-${REPO_ROOT}/build}
 source "${REPO_ROOT}/scripts/common.sh"
 source "${REPO_ROOT}/scripts/common_cmdline.sh"
@@ -64,7 +64,7 @@ fi
 
 function ask_expectation_update()
 {
-    if [ $INTERACTIVE ]
+    if [ "$INTERACTIVE" ]
     then
         local newExpectation="${1}"
         local expectationFile="${2}"
@@ -72,7 +72,7 @@ function ask_expectation_update()
         do
             read -p "(u)pdate expectation/(q)uit? "
             case $REPLY in
-                u* ) echo "$newExpectation" > $expectationFile ; break;;
+                u* ) echo "$newExpectation" > "$expectationFile" ; break;;
                 q* ) exit 1;;
             esac
         done
@@ -157,37 +157,37 @@ function test_solc_behaviour()
         exit 1
     fi
 
-    if [[ "$(cat $stdout_path)" != "${stdout_expected}" ]]
+    if [[ "$(cat "$stdout_path")" != "${stdout_expected}" ]]
     then
         printError "Incorrect output on stdout received. Expected:"
         echo -e "${stdout_expected}"
 
         printError "But got:"
-        echo -e "$(cat $stdout_path)"
+        echo -e "$(cat "$stdout_path")"
 
         printError "When running $solc_command"
 
         if [ -n "$stdout_expectation_file" ]
         then
-            ask_expectation_update "$(cat $stdout_path)" "$stdout_expectation_file"
+            ask_expectation_update "$(cat "$stdout_path")" "$stdout_expectation_file"
         else
             exit 1
         fi
     fi
 
-    if [[ "$(cat $stderr_path)" != "${stderr_expected}" ]]
+    if [[ "$(cat "$stderr_path")" != "${stderr_expected}" ]]
     then
         printError "Incorrect output on stderr received. Expected:"
         echo -e "${stderr_expected}"
 
         printError "But got:"
-        echo -e "$(cat $stderr_path)"
+        echo -e "$(cat "$stderr_path")"
 
         printError "When running $solc_command"
 
         if [ -n "$stderr_expectation_file" ]
         then
-            ask_expectation_update "$(cat $stderr_path)" "$stderr_expectation_file"
+            ask_expectation_update "$(cat "$stderr_path")" "$stderr_expectation_file"
         else
             exit 1
         fi
@@ -203,14 +203,14 @@ function test_solc_assembly_output()
     local expected="${2}"
     local solc_args="${3}"
 
-    local expected_object="object \"object\" { code "${expected}" }"
+    local expected_object="object \"object\" { code ${expected} }"
 
     output=$(echo "${input}" | "$SOLC" - ${solc_args} 2>/dev/null)
     empty=$(echo $output | sed -ne '/'"${expected_object}"'/p')
     if [ -z "$empty" ]
     then
         printError "Incorrect assembly output. Expected: "
-        echo -e ${expected}
+        echo -e "${expected}"
         printError "with arguments ${solc_args}, but got:"
         echo "${output}"
         exit 1
@@ -259,8 +259,8 @@ printTask "Running general commandline tests..."
         # Strip trailing slash from $tdir.
         tdir=$(basename "${tdir}")
 
-        inputFiles="$(ls -1 ${tdir}/input.* 2> /dev/null || true)"
-        inputCount="$(echo ${inputFiles} | wc -w)"
+        inputFiles="$(ls -1 "${tdir}/input."* 2> /dev/null || true)"
+        inputCount="$(echo "${inputFiles}" | wc -w)"
         if (( ${inputCount} > 1 ))
         then
             printError "Ambiguous input. Found input files in multiple formats:"
@@ -280,17 +280,17 @@ printTask "Running general commandline tests..."
         then
             stdin="${inputFile}"
             inputFile=""
-            stdout="$(cat ${tdir}/output.json 2>/dev/null || true)"
+            stdout="$(cat "${tdir}/output.json" 2>/dev/null || true)"
             stdoutExpectationFile="${tdir}/output.json"
-            args="--standard-json "$(cat ${tdir}/args 2>/dev/null || true)
+            args="--standard-json "$(cat "${tdir}/args" 2>/dev/null || true)
         else
             stdin=""
-            stdout="$(cat ${tdir}/output 2>/dev/null || true)"
+            stdout="$(cat "${tdir}/output" 2>/dev/null || true)"
             stdoutExpectationFile="${tdir}/output"
-            args=$(cat ${tdir}/args 2>/dev/null || true)
+            args=$(cat "${tdir}/args" 2>/dev/null || true)
         fi
-        exitCode=$(cat ${tdir}/exit 2>/dev/null || true)
-        err="$(cat ${tdir}/err 2>/dev/null || true)"
+        exitCode=$(cat "${tdir}/exit" 2>/dev/null || true)
+        err="$(cat "${tdir}/err" 2>/dev/null || true)"
         stderrExpectationFile="${tdir}/err"
         test_solc_behaviour "$inputFile" \
                             "$args" \
@@ -453,7 +453,7 @@ printTask "Testing AST import..."
 SOLTMPDIR=$(mktemp -d)
 (
     cd "$SOLTMPDIR"
-    $REPO_ROOT/scripts/ASTImportTest.sh
+    "$REPO_ROOT/scripts/ASTImportTest.sh"
     if [ $? -ne 0 ]
     then
         rm -rf "$SOLTMPDIR"

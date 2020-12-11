@@ -42,7 +42,7 @@ cleanup() {
 
     if [[ -n "$CMDLINE_PID" ]]
     then
-        safe_kill $CMDLINE_PID "Commandline tests"
+        safe_kill "$CMDLINE_PID" "Commandline tests"
     fi
 
     echo "Cleaning up working directory ${WORKDIR} ..."
@@ -69,7 +69,7 @@ then
     "$REPO_ROOT/test/cmdlineTests.sh" &
     CMDLINE_PID=$!
 else
-    if ! $REPO_ROOT/test/cmdlineTests.sh
+    if ! "$REPO_ROOT/test/cmdlineTests.sh"
     then
         printError "Commandline tests FAILED"
         exit 1
@@ -102,7 +102,7 @@ do
             then
                 force_abiv2_flag="--abiencoderv2"
             fi
-            printTask "--> Running tests using "$optimize" --evm-version "$vm" $force_abiv2_flag..."
+            printTask "--> Running tests using $optimize --evm-version $vm $force_abiv2_flag..."
 
             log=""
             if [ -n "$log_directory" ]
